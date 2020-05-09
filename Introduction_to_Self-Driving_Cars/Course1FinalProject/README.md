@@ -47,7 +47,8 @@ Taking the temporal derivative of the velocity errors:
 ` throttle_output = v_diff * k_d / dt `
 
 #### Parameter tuning
-For tuning the parameters, check Kevin Lynch's [video](https://bit.ly/2P208OH)
+For tuning the parameters, check Kevin Lynch's [video](https://bit.ly/2P208OH).
+
 My final hyperparameters is :
 ` k_p = 2.2 `, ` k_i = 0.36 `, ` k_d = 0.2 `
 
@@ -64,10 +65,15 @@ For lateral controllers, I implemented 2 methods, one is the Pure Pursuit Method
 
 
 Here are the result using Pure Pursuit controller:
+
+
 [![result video](http://img.youtube.com/vi/6A55QLBNous/0.jpg)](https://www.youtube.com/watch?v=6A55QLBNous "PID + Pure Pursuit Controller")
+
 
 ![alt text](./controller_output/pp_forward_speed.png)
 ![alt text](./controller_output/pp_throttle_output.png)
+
+
 ![alt text](./controller_output/pp_brake_output.png)
 ![alt text](./controller_output/pp_steer_output.png)
 ![alt text](./controller_output/pp_trajectory.png)
@@ -76,14 +82,20 @@ Here are the result using Pure Pursuit controller:
 #### Stanley Method
 1. Calculate the cross track error, which is the distance between front axle and the closest point on the reference path
 2. Calculate the heading error
+
 ![alt text](./controller_output/phi_error.png)
 3. Assign cross track error and heading error to the steering angle equation.
 
 Here are the result using Stanley controller:
+
+
 [![result video](http://img.youtube.com/vi/kyTUrep-Sio/0.jpg)](https://www.youtube.com/watch?v=kyTUrep-Sio "PID + Stanley Controller")
+
 
 ![alt text](./controller_output/stl_forward_speed.png)
 ![alt text](./controller_output/stl_throttle_output.png)
+
+
 ![alt text](./controller_output/stl_brake_output.png)
 ![alt text](./controller_output/stl_steer_output.png)
 ![alt text](./controller_output/stl_trajectory.png)
