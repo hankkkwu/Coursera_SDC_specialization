@@ -201,7 +201,7 @@ class Controller2D(object):
                 access the persistent variables declared above here. For
                 example, can treat self.vars.v_previous like a "global variable".
             """
-            
+
             """
             ######## Stanley Method ########
             # 1. calculate the cross track error
@@ -255,7 +255,7 @@ class Controller2D(object):
             		break
 
             # 3. calculate alpha_hat
-            alpha_hat = np.arctan2(waypoints[idx][1] - y - 1, waypoints[idx][0] - x)
+            alpha_hat = np.arctan2(waypoints[idx][1] - (y - 1), waypoints[idx][0] - x)
 
             # 4. calculate alpha
             alpha = alpha_hat - yaw
