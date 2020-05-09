@@ -24,7 +24,7 @@ My project includes the following files:
 I used a PID controller for my throttle output:
 
 #### p component
-throttle proportional to velocity errors:
+Throttle proportional to velocity errors:
 
 ` v_error = v_desired - v `
 
@@ -49,7 +49,7 @@ Taking the temporal derivative of the velocity errors:
 #### Parameter tuning
 For tuning the parameters, check Kevin Lynch's [video](https://bit.ly/2P208OH).
 
-My final hyperparameters is :
+My final hyperparameters are:
 ` k_p = 2.2 `, ` k_i = 0.36 `, ` k_d = 0.2 `
 
 
@@ -64,7 +64,7 @@ For lateral controllers, I implemented 2 methods, one is the Pure Pursuit Method
 4. Assign `alpha` to the the steering angle equation.
 
 
-Here are the result using Pure Pursuit controller:
+Here is the result using Pure Pursuit controller:
 
 
 [![result video](http://img.youtube.com/vi/6A55QLBNous/0.jpg)](https://www.youtube.com/watch?v=6A55QLBNous "PID + Pure Pursuit Controller")
@@ -84,9 +84,10 @@ Here are the result using Pure Pursuit controller:
 2. Calculate the heading error
 
 ![alt text](./controller_output/phi_error.png)
+
 3. Assign cross track error and heading error to the steering angle equation.
 
-Here are the result using Stanley controller:
+Here is the result using Stanley controller:
 
 
 [![result video](http://img.youtube.com/vi/kyTUrep-Sio/0.jpg)](https://www.youtube.com/watch?v=kyTUrep-Sio "PID + Stanley Controller")
