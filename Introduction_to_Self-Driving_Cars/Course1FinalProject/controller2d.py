@@ -202,8 +202,9 @@ class Controller2D(object):
                 example, can treat self.vars.v_previous like a "global variable".
             """
 
-            """
-            ######## Stanley Method ########
+            ####################################
+            ########## Stanley Method ##########
+            ####################################
             # 1. calculate the cross track error
             cte = float("inf")
             idx = 0
@@ -230,17 +231,14 @@ class Controller2D(object):
 
             # 3. calculate the steering angle
             # k and ks are hyperparameters we need to tune
-            k = 1.2
+            k = 1.25
             ks = 1
             steer_output = phi_error + np.arctan(k * cte / (ks + v))
-            print('[info] steering angle: ', steer_output)
-            if steer_output > 1.22:
-            	steer_output = 1.22
-            elif steer_output < -1.22:
-            	steer_output = -1.22
 
             """
-            ######## Pure Pursuit Method ########
+            #########################################
+            ######### Pure Pursuit Method ###########
+            #########################################
             # 1. Set look ahead distance
             ld = 5
 
@@ -264,12 +262,13 @@ class Controller2D(object):
             k_dd = 1   # k_dd is the hyperparameter that needs to tune
             # 0.001 is the softening constant ensure the denominator is always > 0
             steer_output = np.arctan(2 * 2.5 * np.sin(alpha) / (k_dd * v + 0.001))
+            """
 
             if steer_output > 1.22:
             	steer_output = 1.22
             elif steer_output < -1.22:
             	steer_output = -1.22
-
+            print('[info] steering angle: ', steer_output)
             ######################################################
             # SET CONTROLS OUTPUT
             ######################################################
@@ -277,11 +276,11 @@ class Controller2D(object):
             self.set_steer(steer_output)        # in rad (-1.22 to 1.22)
             self.set_brake(brake_output)        # in percent (0 to 1)
 
-        ######################################################
-        ######################################################
+        #########################################################
+        #########################################################
         # MODULE 7: STORE OLD VALUES HERE (ADD MORE IF NECESSARY)
-        ######################################################
-        ######################################################
+        #########################################################
+        #########################################################
         """
             Use this block to store old values (for example, we can store the
             current x, y, and yaw values here using persistent variables for use
