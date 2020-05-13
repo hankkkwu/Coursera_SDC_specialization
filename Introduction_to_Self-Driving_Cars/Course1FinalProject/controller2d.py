@@ -205,34 +205,41 @@ class Controller2D(object):
             ####################################
             ########## Stanley Method ##########
             ####################################
-            # 1. calculate the cross track error
-            cte = float("inf")
-            idx = 0
-            for i in range(len(waypoints)):
-            	dist = np.linalg.norm(np.array([
-                        waypoints[i][0] - x,
-                    	waypoints[i][1] - (y + 1.5)]))
-            	if dist < cte:
-            		cte = dist
-            		idx = i
+            # 1. calculate the heading error
+            print(waypoints[-1][1] - waypoints[0][1])
+            print(waypoints[-1][0] - waypoints[0][0])
+            desired_yaw = np.arctan2(waypoints[-1][1] - waypoints[0][1], waypoints[-1][0] - waypoints[0][0])
+            phi_error = desired_yaw - yaw
+            if phi_error > np.pi:
+                phi_error -= 2*np.pi
+            if phi_error < -np.pi:
+                phi_error += 2*np.pi
+            print('[info] heading error: ', phi_error)
 
-            if yaw < 0:
-                if waypoints[idx][0] - x < 0:
-                    cte = -cte
-            elif yaw >= 0:
-                if waypoints[idx][0] - x > 0:
-                    cte = -cte
+            # 2. calculate the cross track error
+            current_xy = np.array([x, y])
+            current_and_waypoints_error = np.sum((current_xy - np.array(waypoints)[:,:2]) ** 2, axis=1)
+            cte = np.min(current_and_waypoints_error)
+
+            # 3. Deciding sign of cross track error based on relative heading between path and crosstrack
+            yaw_cross_track = np.arctan2(y - waypoints[0][1], x - waypoints[0][0])
+            yaw_desired2ct = desired_yaw - yaw_cross_track
+            if yaw_desired2ct > np.pi:
+                yaw_desired2ct -= 2*np.pi
+            if yaw_desired2ct < -np.pi:
+                yaw_desired2ct += 2*np.pi
+
+            if yaw_desired2ct > 0:
+                cte = abs(cte)
+            else:
+                cte = -abs(cte)
+
             print('[info] cte: ', cte)
 
-            # 2. calculate the heading error
-            desired_yaw = np.arctan2(waypoints[idx+1][1] - waypoints[idx][1], waypoints[idx+1][0] - waypoints[idx][0])
-            phi_error = desired_yaw - yaw
-            # print('[info] heading error: ', phi_error)
-
-            # 3. calculate the steering angle
+            # 4. calculate the steering angle
             # k and ks are hyperparameters we need to tune
             k = 1.25
-            ks = 1
+            ks = 1   # softening constant
             steer_output = phi_error + np.arctan(k * cte / (ks + v))
 
             """
@@ -263,11 +270,13 @@ class Controller2D(object):
             # 0.001 is the softening constant ensure the denominator is always > 0
             steer_output = np.arctan(2 * 2.5 * np.sin(alpha) / (k_dd * v + 0.001))
             """
+            if steer_output > np.pi:
+            	steer_output -= 2 * np.pi
+            if steer_output < -np.pi:
+            	steer_output += 2 * np.pi
 
-            if steer_output > 1.22:
-            	steer_output = 1.22
-            elif steer_output < -1.22:
-            	steer_output = -1.22
+            steer_output = min(1.22, steer_output)
+            steer_output = max(-1.22, steer_output)
             print('[info] steering angle: ', steer_output)
             ######################################################
             # SET CONTROLS OUTPUT
