@@ -206,8 +206,6 @@ class Controller2D(object):
             ########## Stanley Method ##########
             ####################################
             # 1. calculate the heading error
-            print(waypoints[-1][1] - waypoints[0][1])
-            print(waypoints[-1][0] - waypoints[0][0])
             desired_yaw = np.arctan2(waypoints[-1][1] - waypoints[0][1], waypoints[-1][0] - waypoints[0][0])
             phi_error = desired_yaw - yaw
             if phi_error > np.pi:
