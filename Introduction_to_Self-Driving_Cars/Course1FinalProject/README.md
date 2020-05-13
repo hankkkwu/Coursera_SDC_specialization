@@ -80,17 +80,18 @@ Here is the result using Pure Pursuit controller:
 
 
 #### Stanley Method
-1. Calculate the cross track error, which is the distance between front axle and the closest point on the reference path
-2. Calculate the heading error
+1. Calculate the heading error
 
 ![alt text](./controller_output/phi_error.png)
+
+2. Calculate the cross track error, which is the distance between front axle and the closest point on the reference path
 
 3. Assign cross track error and heading error to the steering angle equation.
 
 Here is the result using Stanley controller:
 
 
-[![result video](http://img.youtube.com/vi/kyTUrep-Sio/0.jpg)](https://www.youtube.com/watch?v=kyTUrep-Sio "PID + Stanley Controller")
+[![result video](http://img.youtube.com/vi/lc1U5rRazG4/0.jpg)](https://www.youtube.com/watch?v=lc1U5rRazG4 "PID + Stanley Controller")
 
 
 ![alt text](./controller_output/stl_forward_speed.png)
