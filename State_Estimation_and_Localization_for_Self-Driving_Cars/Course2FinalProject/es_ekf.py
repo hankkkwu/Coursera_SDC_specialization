@@ -14,11 +14,13 @@ from rotations import angle_normalize, rpy_jacobian_axis_angle, skew_symmetric, 
 # This is where you will load the data from the pickle files. For parts 1 and 2, you will use
 # p1_data.pkl. For Part 3, you will use pt3_data.pkl.
 ################################################################################################
-#with open('data/pt1_data.pkl', 'rb') as file:
-#    data = pickle.load(file)
-
-with open('data/pt3_data.pkl', 'rb') as file:
+# For part 1 and part 2
+with open('data/pt1_data.pkl', 'rb') as file:
     data = pickle.load(file)
+
+# For part 3
+#with open('data/pt3_data.pkl', 'rb') as file:
+#    data = pickle.load(file)
 ################################################################################################
 # Each element of the data dictionary is stored as an item from the data dictionary, which we
 # will store in local variables, described by the following:
@@ -110,17 +112,23 @@ lidar.data = (C_li @ lidar.data.T).T + t_i_li
 # Now that our data is set up, we can start getting things ready for our solver. One of the
 # most important aspects of a filter is setting the estimated sensor variances correctly.
 # We set the values here.
-################################################################################################
+###############################################################################################
 var_imu_f = 0.10
 var_imu_w = 0.25
 var_gnss  = 0.01
 var_lidar = 1.00
 
 # FOR PART 2 OF THE ASSIGNMENT
-#var_imu_f = 0.1
-#var_imu_w = 0.05
+#var_imu_f = 0.10
+#var_imu_w = 0.25
 #var_gnss  = 0.01
-#var_lidar = 25.00
+#var_lidar = 50.0
+
+# FOR PART 3 OF THE ASSIGNMENT
+#var_imu_f = 1.0
+#var_imu_w = 0.5
+#var_gnss  = 25.0
+#var_lidar = 30.0
 ################################################################################################
 # We can also set up some constants that won't change for any iteration of our solver.
 ################################################################################################
@@ -156,20 +164,20 @@ lidar_i = 0
 ################################################################################################
 def measurement_update(sensor_var, p_cov_check, y_k, p_check, v_check, q_check):
     # 3.1 Compute Kalman Gain
-    H = h_jac   # 3x9
-    R = np.eye(3) * sensor_var   # 3x3
+    H = h_jac                         # 3x9
+    R = np.eye(3) * sensor_var        # 3x3
     S = np.linalg.inv(H.dot(p_cov_check).dot(H.T) + R)
     K = p_cov_check.dot(H.T).dot(S)   # 9x3
 
     # 3.2 Compute error state
-    delta_x = K.dot(y_k - p_check)   # 9x1
+    delta_x = K.dot(y_k - p_check)    # 9x1
 
     # 3.3 Correct predicted state
     delta_p = delta_x[0:3]
     delta_v = delta_x[3:6]
     delta_phi = delta_x[6:9]
-    p_hat = p_check + delta_p   # 3x1
-    v_hat = v_check + delta_v   # 3x1
+    p_hat = p_check + delta_p         # 3x1
+    v_hat = v_check + delta_v         # 3x1
     q_hat = Quaternion(axis_angle=delta_phi).quat_mult_left(q_check)  # 4x1
 
     # 3.4 Compute corrected covariance
@@ -190,21 +198,21 @@ for k in range(1, imu_f.data.shape[0]):  # start at 1 b/c we have initial predic
     # 1. Update state with IMU inputs
     # C_{ns} is the rotation matrix of the q_{k-1} quaternion.
     Cns = Quaternion(*q_est[k-1]).to_mat()   # 3x3
-    f = imu_f.data[k-1]   # 3x1
-    w = imu_w.data[k-1]   # 3x1
+    f = imu_f.data[k-1]                      # 3x1
+    w = imu_w.data[k-1]                      # 3x1
     p_est[k] = p_est[k-1] + v_est[k-1] * delta_t + delta_t**2 * (Cns.dot(f) + g) / 2
     v_est[k] = v_est[k-1] + (Cns.dot(f) + g) * delta_t
     q_est[k] = Quaternion(axis_angle=w * delta_t).quat_mult_right(q_est[k-1])
 
     # 1.1 Linearize the motion model and compute Jacobians
-    F =  np.eye(9)   # 9x9
+    F =  np.eye(9)                           # 9x9
     F[0:3, 3:6] = np.eye(3) * delta_t
     F[3:6, 6:9] = -skew_symmetric(Cns.dot(f)) * delta_t
     #F[3:6, 6:9] = -Cns.dot(skew_symmetric(f)) * delta_t
-    L = l_jac  # 9x6
+    L = l_jac                                # 9x6
 
     # 2. Propagate uncertainty
-    Q = np.eye(6) * delta_t**2   # 6x6
+    Q = np.eye(6) * delta_t**2               # 6x6
     Q[0:3, 0:3] *= var_imu_f
     Q[3:6, 3:6] *= var_imu_w
     p_cov[k] = F.dot(p_cov[k-1]).dot(F.T) + L.dot(Q).dot(L.T)
@@ -219,7 +227,6 @@ for k in range(1, imu_f.data.shape[0]):  # start at 1 b/c we have initial predic
         p_est[k], v_est[k], q_est[k], p_cov[k] = measurement_update(var_gnss, p_cov[k], gnss.data[gnss_i], p_est[k], v_est[k], q_est[k])
         gnss_i += 1
 
-    # Update states (save)
 
 #### 6. Results and Analysis ###################################################################
 
@@ -317,10 +324,10 @@ plt.show()
 #    file.write(p2_str)
 
 # Pt. 3 submission
-p3_indices = [6800, 7600, 8400, 9200, 10000]
-p3_str = ''
-for val in p3_indices:
-    for i in range(3):
-        p3_str += '%.3f ' % (p_est[val, i])
-with open('pt3_submission.txt', 'w') as file:
-    file.write(p3_str)
+#p3_indices = [6800, 7600, 8400, 9200, 10000]
+#p3_str = ''
+#for val in p3_indices:
+#    for i in range(3):
+#        p3_str += '%.3f ' % (p_est[val, i])
+#with open('pt3_submission.txt', 'w') as file:
+#    file.write(p3_str)
