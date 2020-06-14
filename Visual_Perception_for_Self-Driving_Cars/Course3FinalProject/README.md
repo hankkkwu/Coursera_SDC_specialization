@@ -15,13 +15,10 @@ The goals of this project are the following:
 #### 1.1 Estimating the 3D (x, y, and z) in camera coordinates from the image:
 To do this we need to use the camera intrinsic matrix and the depth map in the following equation:
 
-   $$z = depth $$
+![alt text](./images/eq1.PNG)
 
-   $x = \frac{(u - c_u) * z}{fx} \tag{1}$
+![alt text](./images/eq2.PNG)
 
-   $y = \frac{(v - c_v) * z}{fy} \tag{2}$
-
-   $$K = \begin{pmatrix} f & 0 & c_u \\ 0 & f & c_v \\ 0& 0 & 1 \end{pmatrix}$$
 
 #### 1.2 Estimating The Ground Plane Using RANSAC:
 - Step1: process the semantic segmentation output to extract the relevant pixels belonging to the class you want consider as ground. For this assessment, that class is the road class with a mapping index of 7.
@@ -100,7 +97,9 @@ After filtering out Unreliable detections:
 
 
 #### 3.2 Estimating Minimum Distance To Impact:
-- Step1:  For each bounding box, compute the distance to the camera center using the x,y,z in camera coordinates. This can be done according to the equation: $ distance = \sqrt{x^2 + y^2 + z^2}$.
+- Step1:  For each bounding box, compute the distance to the camera center using the x,y,z in camera coordinates. This can be done according to the equation:
+![alt text](./images/eq3.PNG)
+
 - Step2: Find the value of the minimum distance of all pixels inside the bounding box
 
 Here is the estimated distance along with the 2D detection output:
@@ -111,16 +110,16 @@ Here is the estimated distance along with the 2D detection output:
 #### The result in different image frame:
 RGB input image:
 
-![alt text](./images/2D_distance_estimated.png)
+![alt text](./images/result1.png)
 
 Estimated drivable space:
 
-![alt text](./images/2D_distance_estimated.png)
+![alt text](./images/result2.png)
 
 Estimated lane boundaries:
 
-![alt text](./images/2D_distance_estimated.png)
+![alt text](./images/result3.png)
 
 Estimated distance to impact:
 
-![alt text](./images/2D_distance_estimated.png)
+![alt text](./images/result4.png)
