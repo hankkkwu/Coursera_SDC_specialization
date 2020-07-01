@@ -65,7 +65,7 @@ class PathOptimizer:
         # the initial and final points) to be zero.
         p0 = [0.0, 0.0, sf_0]
 
-        # Here we will set the bounds [lower, upper] for each optimization 
+        # Here we will set the bounds [lower, upper] for each optimization
         # variable.
         # The first two variables correspond to the curvature 1/3rd of the
         # way along the path and 2/3rds of the way along the path, respectively.
@@ -74,7 +74,7 @@ class PathOptimizer:
         # has a lower limit of the straight line arc length.
         # TODO: INSERT YOUR CODE BETWEEN THE DASHED LINES
         # ------------------------------------------------------------------
-        # bounds = ...
+        bounds = [[-0.5,0.5], [-0.5,0.5], [sf_0,1000000]]
         # ------------------------------------------------------------------
 
         # Here we will call scipy.optimize.minimize to optimize our spiral.
@@ -84,7 +84,8 @@ class PathOptimizer:
         # optimization methods.
         # TODO: INSERT YOUR CODE BETWEEN THE DASHED LINES
         # ------------------------------------------------------------------
-        # res = scipy.optimize.minimize(...)
+        res = scipy.optimize.minimize(fun=self.objective, x0=p0, method='L-BFGS-B',
+                                    jac=self.objective_grad, bounds=bounds, options={'disp':True})
         # ------------------------------------------------------------------
 
         spiral = self.sample_spiral(res.x)
@@ -110,14 +111,16 @@ class PathOptimizer:
     #         c - the third term of kappa(s).
     #         d - the fourth term of kappa(s).
     def thetaf(self, a, b, c, d, s):
-        pass
-
         # TODO: INSERT YOUR CODE BETWEEN THE DASHED LINES
         # ------------------------------------------------------------------
         # # Remember that a, b, c, d and s are lists
-        # ...
-        # thetas = ...
-        # return thetas
+        s_square = np.multiply(s,s)
+        A = np.multiply(a, s)
+        B = np.multiply(b, 0.5 * s_square)
+        C = np.multiply(c, np.multiply(s_square, s) / 3)
+        D = np.multiply(d, 0.25 * np.multiply(s_square, s_square))
+        thetas = A + B + C + D
+        return thetas
         # ------------------------------------------------------------------
 
     ######################################################
@@ -147,7 +150,7 @@ class PathOptimizer:
                 t_points: List of yaw values (rad) along the spiral
         """
         # These equations map from the optimization parameter space
-        # to the spiral parameter space.   
+        # to the spiral parameter space.
         p = [0.0, p[0], p[1], 0.0, p[2]]    # recall p0 and p3 are set to 0
                                             # and p4 is the final arc length
         a = p[0]
@@ -158,7 +161,7 @@ class PathOptimizer:
 
         # Set the s_points (list of s values along the spiral) to be from 0.0
         # to p[4] (final arc length)
-        s_points = np.linspace(0.0, p[4])
+        s_points = np.linspace(0.0, p[4])   # There will be 50 points
 
         # Compute the theta, x, and y points from the uniformly sampled
         # arc length points s_points (p[4] is the spiral arc length).
@@ -171,10 +174,10 @@ class PathOptimizer:
         # Try to vectorize the code using numpy functions for speed if you can.
         # TODO: INSERT YOUR CODE BETWEEN THE DASHED LINES
         # ------------------------------------------------------------------
-        # t_points = ...
-        # x_points = ...
-        # y_points = ...
-        # return [x_points, y_points, t_points]
+        t_points = self.thetaf(a,b,c,d,s_points)
+        x_points = scipy.integrate.cumtrapz(np.cos(t_points), s_points)
+        y_points = scipy.integrate.cumtrapz(np.sin(t_points), s_points)
+        return [x_points, y_points, t_points]
         # ------------------------------------------------------------------
 
     ######################################################
