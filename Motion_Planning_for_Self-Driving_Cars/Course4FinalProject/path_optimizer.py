@@ -74,7 +74,7 @@ class PathOptimizer:
         # has a lower limit of the straight line arc length.
         # TODO: INSERT YOUR CODE BETWEEN THE DASHED LINES
         # ------------------------------------------------------------------
-        bounds = [[-0.5,0.5], [-0.5,0.5], [sf_0,1000000]]
+        bounds = [[-0.5,0.5], [-0.5,0.5], [sf_0,np.inf]]
         # ------------------------------------------------------------------
 
         # Here we will call scipy.optimize.minimize to optimize our spiral.
@@ -84,8 +84,11 @@ class PathOptimizer:
         # optimization methods.
         # TODO: INSERT YOUR CODE BETWEEN THE DASHED LINES
         # ------------------------------------------------------------------
-        res = scipy.optimize.minimize(fun=self.objective, x0=p0, method='L-BFGS-B',
-                                    jac=self.objective_grad, bounds=bounds, options={'disp':True})
+        res = scipy.optimize.minimize(fun=self.objective,
+                                      x0=p0,
+                                      method='L-BFGS-B',
+                                      jac=self.objective_grad,
+                                      bounds=bounds)
         # ------------------------------------------------------------------
 
         spiral = self.sample_spiral(res.x)
@@ -115,10 +118,10 @@ class PathOptimizer:
         # ------------------------------------------------------------------
         # # Remember that a, b, c, d and s are lists
         s_square = np.multiply(s,s)
-        A = np.multiply(a, s)
-        B = np.multiply(b, 0.5 * s_square)
-        C = np.multiply(c, np.multiply(s_square, s) / 3)
-        D = np.multiply(d, 0.25 * np.multiply(s_square, s_square))
+        A = a * s
+        B = b * 0.5 * s_square
+        C = c / 3 * np.multiply(s_square, s)
+        D = d * 0.25 * np.multiply(s_square, s_square)
         thetas = A + B + C + D
         return thetas
         # ------------------------------------------------------------------
@@ -175,8 +178,8 @@ class PathOptimizer:
         # TODO: INSERT YOUR CODE BETWEEN THE DASHED LINES
         # ------------------------------------------------------------------
         t_points = self.thetaf(a,b,c,d,s_points)
-        x_points = scipy.integrate.cumtrapz(np.cos(t_points), s_points)
-        y_points = scipy.integrate.cumtrapz(np.sin(t_points), s_points)
+        x_points = scipy.integrate.cumtrapz(np.cos(t_points), x = s_points)
+        y_points = scipy.integrate.cumtrapz(np.sin(t_points), x = s_points)
         return [x_points, y_points, t_points]
         # ------------------------------------------------------------------
 
