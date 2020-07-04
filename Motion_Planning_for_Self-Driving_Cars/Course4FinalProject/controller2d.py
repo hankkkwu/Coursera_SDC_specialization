@@ -128,10 +128,13 @@ class Controller2D(object):
         self.vars.create_var('v_error', 0.0)
         self.vars.create_var('v_error_prev', 0.0)
         self.vars.create_var('v_error_integral', 0.0)
-        
+
         # Skip the first frame to store previous values properly
         if self._start_control_loop:
 
+            ###################################################
+            ###### LONGITUDINAL CONTROLLER - PID Control ######
+            ###################################################
             self.vars.v_error           = v_desired - v
             self.vars.v_error_integral += self.vars.v_error * \
                                           (t - self.vars.t_prev)
@@ -140,32 +143,35 @@ class Controller2D(object):
 
             # cap the integrator sum to a min/max
             self.vars.v_error_integral = \
-                    np.fmax(np.fmin(self.vars.v_error_integral, 
-                                    self.vars.integrator_max), 
+                    np.fmax(np.fmin(self.vars.v_error_integral,
+                                    self.vars.integrator_max),
                             self.vars.integrator_min)
 
             throttle_output = self.vars.kp * self.vars.v_error +\
                               self.vars.ki * self.vars.v_error_integral +\
                               self.vars.kd * v_error_rate_of_change
 
+            ##################################################
+            ####### LATERAL CONTROLLER - Stanley Method ######
+            ##################################################
             # Find cross track error (assume point with closest distance)
             crosstrack_error = float("inf")
             crosstrack_vector = np.array([float("inf"), float("inf")])
 
             ce_idx = self.get_lookahead_index(self._lookahead_distance)
             crosstrack_vector = np.array([waypoints[ce_idx][0] - \
-                                         x - self._lookahead_distance*np.cos(yaw), 
+                                         x - self._lookahead_distance*np.cos(yaw),
                                           waypoints[ce_idx][1] - \
                                          y - self._lookahead_distance*np.sin(yaw)])
             crosstrack_error = np.linalg.norm(crosstrack_vector)
 
             # set deadband to reduce oscillations
-            print(crosstrack_error)
+            # print("[INFO] cte: ", crosstrack_error)
             if crosstrack_error < self.vars.cross_track_deadband:
                 crosstrack_error = 0.0
 
             # Compute the sign of the crosstrack error
-            crosstrack_heading = np.arctan2(crosstrack_vector[1], 
+            crosstrack_heading = np.arctan2(crosstrack_vector[1],
                                             crosstrack_vector[0])
             crosstrack_heading_error = crosstrack_heading - yaw
             crosstrack_heading_error = \
@@ -173,7 +179,7 @@ class Controller2D(object):
                     self._2pi - self._pi
 
             crosstrack_sign = np.sign(crosstrack_heading_error)
-    
+
             # Compute heading relative to trajectory (heading error)
             # First ensure that we are not at the last index. If we are,
             # flip back to the first index (loop the waypoints)
@@ -181,13 +187,13 @@ class Controller2D(object):
                 vect_wp0_to_wp1 = np.array(
                         [waypoints[ce_idx+1][0] - waypoints[ce_idx][0],
                          waypoints[ce_idx+1][1] - waypoints[ce_idx][1]])
-                trajectory_heading = np.arctan2(vect_wp0_to_wp1[1], 
+                trajectory_heading = np.arctan2(vect_wp0_to_wp1[1],
                                                 vect_wp0_to_wp1[0])
             else:
                 vect_wp0_to_wp1 = np.array(
                         [waypoints[0][0] - waypoints[-1][0],
                          waypoints[0][1] - waypoints[-1][1]])
-                trajectory_heading = np.arctan2(vect_wp0_to_wp1[1], 
+                trajectory_heading = np.arctan2(vect_wp0_to_wp1[1],
                                                 vect_wp0_to_wp1[0])
 
             heading_error = trajectory_heading - yaw
@@ -214,4 +220,3 @@ class Controller2D(object):
         self.vars.v_prev       = v
         self.vars.v_error_prev = self.vars.v_error
         self.vars.t_prev       = t
-        
