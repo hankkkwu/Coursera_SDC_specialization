@@ -216,21 +216,26 @@ class Controller2D(object):
 
             # 2. calculate the cross track error
             current_xy = np.array([x, y])
-            current_and_waypoints_error = np.sum((current_xy - np.array(waypoints)[:,:2]) ** 2, axis=1)
+            # calculate the distance between ego and each point along the waypoints
+            current_and_waypoints_error = np.sqrt(np.sum((current_xy - np.array(waypoints)[:,:2]) ** 2, axis=1))
+
+            cte_index = np.argmin(current_and_waypoints_error)
             cte = np.min(current_and_waypoints_error)
 
+            # cross_track_deadband = 0.01
+            if cte < 0.01:
+                cte = 0
+
             # 3. Deciding sign of cross track error based on relative heading between path and crosstrack
-            yaw_cross_track = np.arctan2(y - waypoints[0][1], x - waypoints[0][0])
+            yaw_cross_track = np.arctan2(y - waypoints[cte_index][1], x - waypoints[cte_index][0])
             yaw_desired2ct = desired_yaw - yaw_cross_track
             if yaw_desired2ct > np.pi:
                 yaw_desired2ct -= 2*np.pi
             if yaw_desired2ct < -np.pi:
                 yaw_desired2ct += 2*np.pi
 
-            if yaw_desired2ct > 0:
-                cte = abs(cte)
-            else:
-                cte = -abs(cte)
+            if yaw_desired2ct < 0:
+                cte = -cte
 
             print('[info] cte: ', cte)
 
