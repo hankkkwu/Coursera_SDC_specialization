@@ -9,8 +9,9 @@ The goals of this project are the following:
 * Implement a lateral controller to control the steering.
 * Use both longitudinal and lateral controllers to drive a car around a track in Carla.
 
----
+
 ### Files
+---
 
 My project includes the following files:
 * "controller2d.py" contains a controller object, this is where I implemented my controller.
@@ -21,6 +22,7 @@ My project includes the following files:
 
 
 ### Longitudinal controllers
+---
 I used a PID controller for my throttle output:
 
 #### p component
@@ -54,6 +56,7 @@ My final hyperparameters are:
 
 
 ### Lateral controllers
+---
 For lateral controllers, I implemented 2 methods, one is the Pure Pursuit Method, and the other is Stanley Method
 
 #### Pure Pursuit Method
